@@ -1,0 +1,11 @@
+New projek klinik menggunakan :
+
+Codeigniter 3.1.6
+XAMPP 5.6.31
+MYSQL database
+Thema gentelella-master
+update terakhir tgl 6 nov 2017
+
+themeplate integrasi CI
+Master user dan acces ( C,R,U,D )
+master lokasi ( provinsi,kabupaten,kecamatan,desa ) msh blm bisa CRUD
