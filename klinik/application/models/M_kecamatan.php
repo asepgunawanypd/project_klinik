@@ -42,4 +42,44 @@ class M_Kecamatan extends CI_Model {
         $rows = $this->db->query($sql)->result_array(); 
         return array("total" => $total, "rows" => $rows );          
     }
+
+     public function view($id){
+        $this->db->select('tbl_master_kecamatan.*,tbl_master_kabupaten.kabupaten');
+        $this->db->from($this->table);
+        $this->db->join('tbl_master_kabupaten', 'tbl_master_kecamatan.kabupaten_id = tbl_master_kabupaten.id','inner'  );
+        $this->db->where('tbl_master_kecamatan.id',$id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+	
+	public function select_all() {
+        $data = $this->db->get($this->table);
+        return $data->result();
+    }
+	
+	public function filename_exists($id){
+        $this->db->from($this->table);
+        $this->db->where('id', $id);
+        $data = $this->db->get();
+        if ($data->num_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+	
+	public function delete_by_id($id){
+        $this->db->where('id', $id);
+        return $this->db->delete($this->table);
+    }
+	
+	public function add($data){
+        $this->db->insert($this->table, $data);
+        return $this->db->insert_id();
+    }
+	
+	public function edit($where, $data){
+        $this->db->update($this->table, $data, $where);
+        return $this->db->affected_rows();
+    }
 }

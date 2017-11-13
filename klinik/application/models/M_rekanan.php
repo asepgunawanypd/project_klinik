@@ -1,21 +1,25 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_Provinsi extends CI_Model {
+class M_rekanan extends CI_Model {
 
-	var $table = 'tbl_master_provinsi';
-    var $v_table = 'v_location';
+	var $table = 'tbl_master_rekanan';
 
 	public function __construct(){
 		parent::__construct();
 	}
 
     public function dataTable($post=''){
-        $sql = "SELECT * FROM tbl_master_provinsi WHERE 1 = 1 ";        
+        $sql = "SELECT * FROM tbl_master_rekanan WHERE 1 = 1 ";        
         if(  isset($post['search']) && ! empty($post['search']["value"])  ){
             $search = $this->db->escape_str($post['search']["value"]);            
             $sql .= " AND id LIKE '%". $search ."%' ";
-            $sql .= " OR provinsi LIKE '%". $search ."%' ";
+            $sql .= " OR rekanan LIKE '%". $search ."%' ";
+            $sql .= " OR account LIKE '%". $search ."%' ";
+            $sql .= " OR up LIKE '%". $search ."%' ";
+            $sql .= " OR alamat LIKE '%". $search ."%' ";
+            $sql .= " OR phone LIKE '%". $search ."%' ";
+            $sql .= " OR email LIKE '%". $search ."%' ";
         }   
         $total = $this->db->query("SELECT COUNT(*) jml FROM ( $sql ) AS jumlah")->row("jml");        
         if( empty($post['length'])){ $post['length'] = 10; }
@@ -27,14 +31,22 @@ class M_Provinsi extends CI_Model {
             $sql .= " ORDER BY ". $field  ." ".$dir;
             
         }else{
-            $sql .= "ORDER BY id ASC";
+            $sql .= "ORDER BY rekanan ASC";
         }        
         $sql .= " LIMIT ".$post['start'].",".$post['length'];        
         $rows = $this->db->query($sql)->result_array(); 
         return array("total" => $total, "rows" => $rows );          
     }
-	
-	public function filename_exists($id){
+
+    public function view($id){
+        $this->db->select('*');
+        $this->db->from($this->table);
+        $this->db->where('id',$id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
+    public function filename_exists($id){
         $this->db->from($this->table);
         $this->db->where('id', $id);
         $data = $this->db->get();
@@ -44,38 +56,24 @@ class M_Provinsi extends CI_Model {
             return false;
         }
     }
-	
-	public function add($data){
-        $this->db->insert($this->table, $data);
-        return $this->db->insert_id();
+
+    public function add($data){
+        return $this->db->insert($this->table, $data);
     }
-	
-	public function edit($where, $data){
+
+    public function edit($where, $data){
         $this->db->update($this->table, $data, $where);
         return $this->db->affected_rows();
     }
-	
-	public function delete_by_id($id){
+
+    public function delete_by_id($id){
         $this->db->where('id', $id);
         return $this->db->delete($this->table);
     }
-	
-	public function get_by_id($id){
-        $this->db->from($this->table);
-        $this->db->where('id',$id);
-        $query = $this->db->get();
-        return $query->row();
-    }
 
-    public function view($id){
-        $this->db->from($this->table);
-        $this->db->where('id',$id);
-        $query = $this->db->get();
-        return $query->row();
-    }
-	
-	public function select_all() {
+    public function select_all() {
         $data = $this->db->get($this->table);
         return $data->result();
     }
+
 }

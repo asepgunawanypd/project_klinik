@@ -1,21 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class M_Provinsi extends CI_Model {
+class M_icd_induk extends CI_Model {
 
-	var $table = 'tbl_master_provinsi';
-    var $v_table = 'v_location';
+	var $table = 'tbl_master_icd_induk';
 
 	public function __construct(){
 		parent::__construct();
 	}
 
     public function dataTable($post=''){
-        $sql = "SELECT * FROM tbl_master_provinsi WHERE 1 = 1 ";        
+        $sql = "SELECT * FROM tbl_master_icd_induk WHERE 1 = 1 ";        
         if(  isset($post['search']) && ! empty($post['search']["value"])  ){
             $search = $this->db->escape_str($post['search']["value"]);            
-            $sql .= " AND id LIKE '%". $search ."%' ";
-            $sql .= " OR provinsi LIKE '%". $search ."%' ";
+            $sql .= " AND kd LIKE '%". $search ."%' ";
+            $sql .= " OR icd_induk LIKE '%". $search ."%' ";
         }   
         $total = $this->db->query("SELECT COUNT(*) jml FROM ( $sql ) AS jumlah")->row("jml");        
         if( empty($post['length'])){ $post['length'] = 10; }
@@ -27,7 +26,7 @@ class M_Provinsi extends CI_Model {
             $sql .= " ORDER BY ". $field  ." ".$dir;
             
         }else{
-            $sql .= "ORDER BY id ASC";
+            $sql .= "ORDER BY kd ASC";
         }        
         $sql .= " LIMIT ".$post['start'].",".$post['length'];        
         $rows = $this->db->query($sql)->result_array(); 
@@ -36,7 +35,7 @@ class M_Provinsi extends CI_Model {
 	
 	public function filename_exists($id){
         $this->db->from($this->table);
-        $this->db->where('id', $id);
+        $this->db->where('kd', $id);
         $data = $this->db->get();
         if ($data->num_rows() > 0) {
             return true;
@@ -46,8 +45,7 @@ class M_Provinsi extends CI_Model {
     }
 	
 	public function add($data){
-        $this->db->insert($this->table, $data);
-        return $this->db->insert_id();
+        return $this->db->insert($this->table, $data);
     }
 	
 	public function edit($where, $data){
@@ -56,20 +54,20 @@ class M_Provinsi extends CI_Model {
     }
 	
 	public function delete_by_id($id){
-        $this->db->where('id', $id);
+        $this->db->where('kd', $id);
         return $this->db->delete($this->table);
     }
 	
 	public function get_by_id($id){
         $this->db->from($this->table);
-        $this->db->where('id',$id);
+        $this->db->where('kd',$id);
         $query = $this->db->get();
         return $query->row();
     }
 
     public function view($id){
         $this->db->from($this->table);
-        $this->db->where('id',$id);
+        $this->db->where('kd',$id);
         $query = $this->db->get();
         return $query->row();
     }
