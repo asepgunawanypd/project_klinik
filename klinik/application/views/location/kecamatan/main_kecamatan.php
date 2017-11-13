@@ -1,16 +1,16 @@
 <div class="" role="tabpanel" data-example-id="togglable-tabs">
   <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
-    <li class=""><a href="<?php echo base_url('Provinsi'); ?>" id="pro-tab">Province</a></li>
-    <li class=""><a href="<?php echo base_url('Kabupaten'); ?>" id="kab-tab">District / City</a></li>
-    <li class="active"><a href="<?php echo base_url('Kecamatan'); ?>" id="kec-tab">Districts</a></li>
-    <li class=""><a href="<?php echo base_url('Kelurahan'); ?>" id="kel-tab">Village</a></li>
+    <li class=""><a href="<?php echo base_url('Provinsi'); ?>" id="pro-tab">Provinsi</a></li>
+    <li class=""><a href="<?php echo base_url('Kabupaten'); ?>" id="kab-tab">Kabupaten / Kota</a></li>
+    <li class="active"><a href="<?php echo base_url('Kecamatan'); ?>" id="kec-tab">Kecamatan</a></li>
+    <li class=""><a href="<?php echo base_url('Kelurahan'); ?>" id="kel-tab">Kelurahan</a></li>
   </ul>
   <div id="myTabContent" class="tab-content">
     <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="kab-tab">
       <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
           <div class="x_title">
-            <h2>List Districts<small>Management</small></h2>
+            <h2>List Kecamatan<small>Management</small></h2>
             <ul class="nav navbar-right panel_toolbox">        
               <li><a class="collapse-link"><i class="fa fa-circle-o"></i></a></li>
               <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
@@ -24,10 +24,10 @@
               <thead>
                 <tr>
                   <th style="width: 5%;"><div align="center">No</div></th>
-                  <th style="width: 10%;"><div align="center">ID District</div></th>
-                  <th style="width: 10%;"><div align="center">ID Districts</div></th>
-                  <th><div align="center">District/ City</div></th>
-                  <th><div align="center">Districts</div></th>
+                  <th style="width: 10%;"><div align="center">ID Kabupaten / Kota</div></th>
+                  <th style="width: 10%;"><div align="center">ID Kecamatan</div></th>
+                  <th><div align="center">Kabupaten / Kota</div></th>
+                  <th><div align="center">Kecamatan</div></th>
                 </tr>
               </thead>
             </table>
@@ -41,9 +41,9 @@
                   <!--?php } if($access->user_d != 0){ ?-->
                   <button id="delete" type="button" class="btn btn-danger"><i class="glyphicon glyphicon-trash"></i> Delete</button>
                   <!--?php } if($access->user_p != 0){ ?-->
-                  <a href="<?php echo base_url('User/printpdf'); ?>" target="_blank" class="btn btn-info" title="Print"><i class="glyphicon glyphicon-print"></i> Print</a>
+                  <!--a href="<?php echo base_url('Kecamatan/printpdf'); ?>" target="_blank" class="btn btn-info" title="Print"><i class="glyphicon glyphicon-print"></i> Print</a>
                   <!--?php } if($access->user_ex != 0){ ?-->
-                  <a href="<?php echo base_url('User/export'); ?>" class="btn btn-info"><i class="glyphicon glyphicon glyphicon-floppy-save"></i> Export Excel</a>
+                  <!--a href="<?php echo base_url('Kecamatan/export'); ?>" class="btn btn-info"><i class="glyphicon glyphicon glyphicon-floppy-save"></i> Export Excel</a>
                   <!--?php } ?-->
               </div>
           </div>
@@ -52,10 +52,16 @@
     </div>
   </div>
 </div>
-
-
+<?php echo $modal_view; ?>
+<?php echo $modal_crud; ?>
 <script type="text/javascript">
-  $(document).ready(function(){ 
+	function add(){
+		save_method = 'add';
+		$('.modal-title').text('Tambah Kecamatan');
+		$('#form')[0].reset();
+		$('#modal_crud').modal({show:true});
+    }
+	$(document).ready(function(){ 
     $.fn.dataTableExt.oApi.fnPagingInfo = function(oSettings){
         return {
             "iStart": oSettings._iDisplayStart,
@@ -116,5 +122,121 @@
           $(this).addClass('selected');
       }
     });
+
+     $('#view').click( function (){
+        var row = $('#tableData').DataTable().row('.selected').data();
+        if( ! row ){ swal("Warning", "No data selected", "info"); }
+        else{
+          $.post("<?php echo base_url('Kecamatan/view'); ?>", { id:row.id  }, function(data) {
+            var obj = JSON.parse(data);
+            $('#modal_view').modal({show:true});
+            $('#v_id').text(': '+obj.id);
+            $('#v_kabupaten_id').text(': '+obj.kabupaten_id);
+            $('#v_kabupaten').text(': '+obj.kabupaten);
+            $('#v_kecamatan').text(': '+obj.kecamatan);
+          });
+        }
+    });
+	
+	$( "#id" ).on('keyup', function( event ) {
+		event.preventDefault();
+		$("#msg_id").html('<img src="<?php echo base_url('assets/img/loader.gif')?>" align="absmiddle">&nbsp;Checking availability...');
+		var id = $(this).val();
+		$.post("<?php echo base_url('Kecamatan/filename_exists'); ?>", { id:id  }, function(data) {   
+			if (data == 'error') {
+				$('#msg_id').html('<span style="color:red;">Value does not exist</span>');
+			}else{
+				$('#msg_id').html('');
+			}
+		window.globalVar = data;
+		});
+	});
+	$('#form').submit(function(e){
+			e.preventDefault(); 
+			var url;
+			var cek;
+			if(save_method == 'add'){
+			   url = "<?php echo site_url('Kecamatan/add')?>";
+			   cek = globalVar;
+			}else{
+			   url = "<?php echo site_url('Kecamatan/update')?>";
+			   cek = 'ok';
+			}
+			if(cek == 'error'){
+			   swal("Warning", "ID fileid", "warning");
+			}else{
+				$.ajax({
+					url : url,
+					type: "POST",
+					data: new FormData(this),
+					processData:false,
+					contentType:false,
+					cache:false,
+					dataType: "JSON",
+					success: function(data){
+						$('#modal_form').modal('hide');
+						swal('Success','Data Seved', 'success').then(function(){
+							location.reload();
+						}); 
+					},
+					error: function (data){
+						swal("Insert/Update  Data Error", "", "info").then(function(){
+							location.reload();
+						}); 
+					}
+				});
+			}
+		});
+		$('#edit').click(function(){
+            save_method = 'update';
+            var data = $('#tableData').DataTable().row('.selected').data();
+            if( ! data ){ swal("No data selected", "", "info"); }
+            else{
+				$.post("<?php echo base_url('Kecamatan/view'); ?>", { id:data.id  }, function(data) {
+					var obj = JSON.parse(data);
+					$('[name="id"]').val(obj.id);
+					$('[name="id"]').attr('readonly', true);
+					$('[name="kecamatan"]').val(obj.kecamatan);
+					$('[name="kabupaten_id"]').val(obj.kabupaten_id);
+          $('[name="created_by"]').val(obj.created_by);
+          $('[name="created_at"]').val(obj.created_at);
+					$('#modal_crud').modal({show:true});
+					$('.modal-title').text('Edit Kecamatan ');
+					window.id = obj.id;
+				});
+			}
+		});
+		
+		$('#delete').click(function(){
+            var data = $('#tableData').DataTable().row('.selected').data();
+            if( ! data ){ swal("No data selected", "", "info"); }
+            else{
+               swal({
+                   title: 'Delete File Attachment',
+                   text: 'Are You Sure Delete This File?',
+                   type: 'warning',
+                   html: '',
+                   confirmButtonColor: '#d9534f',
+                   confirmButtonText: "Yes, delete",
+                   showCloseButton: true,
+                   showCancelButton: true,
+                 }).then(function(){
+                 $.ajax({
+                   url : "<?php echo site_url('Kecamatan/delete')?>/"+data.id,
+                   type: "POST",
+                   success: function(data){               
+                     swal('success','data success delete','success').then(function(){
+                       location.reload();
+                     }); 
+                   },
+                   error: function (data){
+                     swal('Error','data is ready not delete ','error').then(function(){
+                        location.reload();
+                     })
+                   },
+                 });
+               });
+            }
+         });
   });
 </script>
